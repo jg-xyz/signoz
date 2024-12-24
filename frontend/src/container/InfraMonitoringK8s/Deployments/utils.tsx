@@ -1,5 +1,6 @@
-import { Color } from '@signozhq/design-tokens';
-import { Progress, Tag } from 'antd';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+
+import { Progress, Tag, Tooltip } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import {
 	K8sDeploymentsData,
@@ -8,7 +9,17 @@ import {
 import { Group } from 'lucide-react';
 import { IBuilderQuery } from 'types/api/queryBuilder/queryBuilderData';
 
+import {
+	formatBytes,
+	getProgressBarText,
+	getStrokeColorForLimitUtilization,
+	getStrokeColorForRequestUtilization,
+	ValidateColumnValueWrapper,
+} from '../commonUtils';
 import { IEntityColumn } from '../utils';
+
+const INVALID_MEMORY_CPU_VALUE_MESSAGE =
+	'Some deployments do not have memory requests/limits.';
 
 export const defaultAddedColumns: IEntityColumn[] = [
 	{
@@ -37,54 +48,54 @@ export const defaultAddedColumns: IEntityColumn[] = [
 	},
 	{
 		label: 'CPU Request Utilization (% of limit)',
-		value: 'cpuRequestUtilization',
-		id: 'cpuRequestUtilization',
+		value: 'cpu_request',
+		id: 'cpu_request',
 		canRemove: false,
 	},
 	{
 		label: 'CPU Limit Utilization (% of request)',
-		value: 'cpuLimitUtilization',
-		id: 'cpuLimitUtilization',
+		value: 'cpu_limit',
+		id: 'cpu_limit',
 		canRemove: false,
 	},
 	{
 		label: 'CPU Utilization (cores)',
-		value: 'cpuUtilization',
-		id: 'cpuUtilization',
+		value: 'cpu',
+		id: 'cpu',
 		canRemove: false,
 	},
 	{
 		label: 'Memory Request Utilization (% of limit)',
-		value: 'memoryRequestUtilization',
-		id: 'memoryRequestUtilization',
+		value: 'memory_request',
+		id: 'memory_request',
 		canRemove: false,
 	},
 	{
 		label: 'Memory Limit Utilization (% of request)',
-		value: 'memoryLimitUtilization',
-		id: 'memoryLimitUtilization',
+		value: 'memory_limit',
+		id: 'memory_limit',
 		canRemove: false,
 	},
 	{
 		label: 'Memory Utilization (bytes)',
-		value: 'memoryUtilization',
-		id: 'memoryUtilization',
+		value: 'memory',
+		id: 'memory',
 		canRemove: false,
 	},
 ];
 
 export interface K8sDeploymentsRowData {
 	key: string;
-	deploymentName: string;
-	availableReplicas: number;
-	desiredReplicas: number;
-	cpuRequestUtilization: React.ReactNode;
-	cpuLimitUtilization: React.ReactNode;
-	cpuUtilization: number;
-	memoryRequestUtilization: React.ReactNode;
-	memoryLimitUtilization: React.ReactNode;
-	memoryUtilization: number;
-	containerRestarts: number;
+	deploymentName: React.ReactNode;
+	availableReplicas: React.ReactNode;
+	desiredReplicas: React.ReactNode;
+	cpu_request: React.ReactNode;
+	cpu_limit: React.ReactNode;
+	cpu: React.ReactNode;
+	memory_request: React.ReactNode;
+	memory_limit: React.ReactNode;
+	memory: React.ReactNode;
+	containerRestarts: React.ReactNode;
 	clusterName: string;
 	namespaceName: string;
 	groupedByMeta?: any;
@@ -149,64 +160,72 @@ const columnsConfig = [
 	},
 	{
 		title: (
-			<div className="column-header-left">
-				CPU Request Utilization (% of limit)
-			</div>
+			<Tooltip title={INVALID_MEMORY_CPU_VALUE_MESSAGE}>
+				<div className="column-header-left">
+					CPU Request Utilization (% of limit)
+				</div>
+			</Tooltip>
 		),
-		dataIndex: 'cpuRequestUtilization',
-		key: 'cpuRequestUtilization',
+		dataIndex: 'cpu_request',
+		key: 'cpu_request',
 		width: 80,
 		sorter: true,
 		align: 'left',
 	},
 	{
 		title: (
-			<div className="column-header-left">
-				CPU Limit Utilization (% of request)
-			</div>
+			<Tooltip title={INVALID_MEMORY_CPU_VALUE_MESSAGE}>
+				<div className="column-header-left">
+					CPU Limit Utilization (% of request)
+				</div>
+			</Tooltip>
 		),
-		dataIndex: 'cpuLimitUtilization',
-		key: 'cpuLimitUtilization',
+		dataIndex: 'cpu_limit',
+		key: 'cpu_limit',
 		width: 50,
 		sorter: true,
 		align: 'left',
 	},
 	{
 		title: <div className="column-header-left">CPU Utilization (cores)</div>,
-		dataIndex: 'cpuUtilization',
-		key: 'cpuUtilization',
+		dataIndex: 'cpu',
+		key: 'cpu',
 		width: 80,
 		sorter: true,
 		align: 'left',
 	},
 	{
 		title: (
-			<div className="column-header-left">
-				Memory Request Utilization (% of limit)
-			</div>
+			<Tooltip title={INVALID_MEMORY_CPU_VALUE_MESSAGE}>
+				<div className="column-header-left">
+					Memory Request Utilization (% of limit)
+				</div>
+			</Tooltip>
 		),
-		dataIndex: 'memoryRequestUtilization',
-		key: 'memoryRequestUtilization',
+		dataIndex: 'memory_request',
+		key: 'memory_request',
 		width: 50,
 		sorter: true,
 		align: 'left',
 	},
 	{
 		title: (
-			<div className="column-header-left">
-				Memory Limit Utilization (% of request)
-			</div>
+			<Tooltip title={INVALID_MEMORY_CPU_VALUE_MESSAGE}>
+				<div className="column-header-left">
+					Memory Limit Utilization (% of request)
+				</div>
+			</Tooltip>
 		),
-		dataIndex: 'memoryLimitUtilization',
-		key: 'memoryLimitUtilization',
+		dataIndex: 'memory_limit',
+		key: 'memory_limit',
 		width: 80,
 		sorter: true,
 		align: 'left',
 	},
 	{
 		title: <div className="column-header-left">Memory Utilization (bytes)</div>,
-		dataIndex: 'memoryUtilization',
-		key: 'memoryUtilization',
+		dataIndex: 'memory',
+		key: 'memory',
 		width: 80,
 		sorter: true,
 		align: 'left',
@@ -250,83 +269,111 @@ const getGroupByEle = (
 	);
 };
 
-const getStrokeColorForProgressBar = (value: number): string => {
-	if (value >= 90) return Color.BG_SAKURA_500;
-	if (value >= 60) return Color.BG_AMBER_500;
-	return Color.BG_FOREST_500;
-};
-
 export const formatDataForTable = (
 	data: K8sDeploymentsData[],
 	groupBy: IBuilderQuery['groupBy'],
 ): K8sDeploymentsRowData[] =>
 	data.map((deployment, index) => ({
 		key: `${deployment.meta.k8s_deployment_name}-${index}`,
-		deploymentName: deployment.meta.k8s_deployment_name,
-		availableReplicas: deployment.availablePods,
-		desiredReplicas: deployment.desiredPods,
-		containerRestarts: deployment.restarts,
-		cpuUtilization: deployment.cpuUsage,
-		cpuRequestUtilization: (
-			<div className="progress-container">
-				<Progress
-					percent={Number((deployment.cpuRequest * 100).toFixed(1))}
-					strokeLinecap="butt"
-					size="small"
-					status="active"
-					strokeColor={((): string => {
-						const cpuPercent = Number((deployment.cpuRequest * 100).toFixed(1));
-						return getStrokeColorForProgressBar(cpuPercent);
-					})()}
-					className="progress-bar"
-				/>
-			</div>
+		deploymentName: (
+			<Tooltip title={deployment.meta.k8s_deployment_name}>
+				{deployment.meta.k8s_deployment_name}
+			</Tooltip>
 		),
-		cpuLimitUtilization: (
-			<div className="progress-container">
-				<Progress
-					percent={Number((deployment.cpuLimit * 100).toFixed(1))}
-					strokeLinecap="butt"
-					size="small"
-					status="active"
-					strokeColor={((): string => {
-						const cpuPercent = Number((deployment.cpuLimit * 100).toFixed(1));
-						return getStrokeColorForProgressBar(cpuPercent);
-					})()}
-					className="progress-bar"
-				/>
-			</div>
+		availableReplicas: (
+			<ValidateColumnValueWrapper value={deployment.availablePods}>
+				{deployment.availablePods}
+			</ValidateColumnValueWrapper>
 		),
-		memoryUtilization: deployment.memoryUsage,
-		memoryRequestUtilization: (
-			<div className="progress-container">
-				<Progress
-					percent={Number((deployment.memoryRequest * 100).toFixed(1))}
-					strokeLinecap="butt"
-					size="small"
-					status="active"
-					strokeColor={((): string => {
-						const memoryPercent = Number((deployment.memoryRequest * 100).toFixed(1));
-						return getStrokeColorForProgressBar(memoryPercent);
-					})()}
-					className="progress-bar"
-				/>
-			</div>
+		desiredReplicas: (
+			<ValidateColumnValueWrapper value={deployment.desiredPods}>
+				{deployment.desiredPods}
+			</ValidateColumnValueWrapper>
 		),
-		memoryLimitUtilization: (
-			<div className="progress-container">
-				<Progress
-					percent={Number((deployment.memoryLimit * 100).toFixed(1))}
-					strokeLinecap="butt"
-					size="small"
-					status="active"
-					strokeColor={((): string => {
-						const memoryPercent = Number((deployment.memoryLimit * 100).toFixed(1));
-						return getStrokeColorForProgressBar(memoryPercent);
-					})()}
-					className="progress-bar"
-				/>
-			</div>
+		containerRestarts: (
+			<ValidateColumnValueWrapper value={deployment.restarts}>
+				{deployment.restarts}
+			</ValidateColumnValueWrapper>
+		),
+		cpu: (
+			<ValidateColumnValueWrapper value={deployment.cpuUsage}>
+				{deployment.cpuUsage}
+			</ValidateColumnValueWrapper>
+		),
+		cpu_request: (
+			<ValidateColumnValueWrapper value={deployment.cpuRequest}>
+				<div className="progress-container">
+					<Progress
+						percent={Number((deployment.cpuRequest * 100).toFixed(1))}
+						strokeLinecap="butt"
+						size="small"
+						status="active"
+						strokeColor={getStrokeColorForRequestUtilization(deployment.cpuRequest)}
+						format={() =>
+							getProgressBarText(Number((deployment.cpuRequest * 100).toFixed(1)))
+						}
+						className="progress-bar"
+					/>
+				</div>
+			</ValidateColumnValueWrapper>
+		),
+		cpu_limit: (
+			<ValidateColumnValueWrapper value={deployment.cpuLimit}>
+				<div className="progress-container">
+					<Progress
+						percent={Number((deployment.cpuLimit * 100).toFixed(1))}
+						strokeLinecap="butt"
+						size="small"
+						status="active"
+						strokeColor={getStrokeColorForLimitUtilization(deployment.cpuLimit)}
+						format={() =>
+							getProgressBarText(Number((deployment.cpuLimit * 100).toFixed(1)))
+						}
+						className="progress-bar"
+					/>
+				</div>
+			</ValidateColumnValueWrapper>
+		),
+		memory: (
+			<ValidateColumnValueWrapper value={deployment.memoryUsage}>
+				{formatBytes(deployment.memoryUsage)}
+			</ValidateColumnValueWrapper>
+		),
+		memory_request: (
+			<ValidateColumnValueWrapper value={deployment.memoryRequest}>
+				<div className="progress-container">
+					<Progress
+						percent={Number((deployment.memoryRequest * 100).toFixed(1))}
+						strokeLinecap="butt"
+						size="small"
+						status="active"
+						strokeColor={getStrokeColorForRequestUtilization(
+							deployment.memoryRequest,
+						)}
+						format={() =>
+							getProgressBarText(Number((deployment.memoryRequest * 100).toFixed(1)))
+						}
+						className="progress-bar"
+					/>
+				</div>
+			</ValidateColumnValueWrapper>
+		),
+		memory_limit: (
+			<ValidateColumnValueWrapper value={deployment.memoryLimit}>
+				<div className="progress-container">
+					<Progress
+						percent={Number((deployment.memoryLimit * 100).toFixed(1))}
+						strokeLinecap="butt"
+						size="small"
+						status="active"
+						strokeColor={getStrokeColorForLimitUtilization(deployment.memoryLimit)}
+						format={() =>
+							getProgressBarText(Number((deployment.memoryLimit * 100).toFixed(1)))
+						}
+						className="progress-bar"
+					/>
+				</div>
+			</ValidateColumnValueWrapper>
 		),
 		clusterName: deployment.meta.k8s_cluster_name,
 		namespaceName: deployment.meta.k8s_namespace_name,

@@ -25,6 +25,7 @@ import { AppState } from 'store/reducers';
 import { IBuilderQuery } from 'types/api/queryBuilder/queryBuilderData';
 import { GlobalReducer } from 'types/reducer/globalTime';
 
+import { K8sCategory } from '../constants';
 import K8sHeader from '../K8sHeader';
 import LoadingContainer from '../LoadingContainer';
 import { dummyColumnConfig } from '../utils';
@@ -146,6 +147,7 @@ function K8sDeploymentsList({
 			queryKey: [currentQuery.builder.queryData[0].dataSource, 'noop'],
 		},
 		true,
+		K8sCategory.DEPLOYMENTS,
 	);
 
 	const queryFilters = useMemo(
@@ -322,6 +324,7 @@ function K8sDeploymentsList({
 							spinning: isFetchingGroupedByRowData || isLoadingGroupedByRowData,
 							indicator: <Spin indicator={<LoadingOutlined size={14} spin />} />,
 						}}
+						showHeader={false}
 					/>
 
 					{groupedByRowData?.payload?.data?.total &&
