@@ -26,7 +26,6 @@ import { useSafeNavigate } from 'hooks/useSafeNavigate';
 import useUrlQuery from 'hooks/useUrlQuery';
 import GetMinMax, { isValidTimeFormat } from 'lib/getMinMax';
 import getTimeString from 'lib/getTimeString';
-import history from 'lib/history';
 import { isObject } from 'lodash-es';
 import { Check, Copy, Info, Send, Undo } from 'lucide-react';
 import { useTimezone } from 'providers/Timezone';
@@ -194,8 +193,8 @@ function DateTimeSelection({
 
 		const path = `${ROUTES.LIVE_LOGS}?${QueryParams.compositeQuery}=${JSONCompositeQuery}`;
 
-		history.push(path, queryHistoryState);
-	}, [panelType, queryClient, stagedQuery]);
+		safeNavigate(path, { state: queryHistoryState });
+	}, [panelType, queryClient, safeNavigate, stagedQuery]);
 
 	const { maxTime, minTime, selectedTime } = useSelector<
 		AppState,
@@ -442,7 +441,7 @@ function DateTimeSelection({
 					urlQuery.set(QueryParams.endTime, endTime?.toDate().getTime().toString());
 					urlQuery.delete(QueryParams.relativeTime);
 					const generatedUrl = `${location.pathname}?${urlQuery.toString()}`;
-					history.replace(generatedUrl);
+					safeNavigate(generatedUrl);
 				}
 			}
 		}
@@ -469,7 +468,7 @@ function DateTimeSelection({
 			urlQuery.set(QueryParams.relativeTime, dateTimeStr);
 
 			const generatedUrl = `${location.pathname}?${urlQuery.toString()}`;
-			history.replace(generatedUrl);
+			safeNavigate(generatedUrl);
 		}
 
 		if (!stagedQuery) {
@@ -656,7 +655,7 @@ function DateTimeSelection({
 
 		const generatedUrl = `${location.pathname}?${urlQuery.toString()}`;
 
-		history.replace(generatedUrl);
+		safeNavigate(generatedUrl);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [location.pathname, updateTimeInterval, globalTimeLoading]);
 
