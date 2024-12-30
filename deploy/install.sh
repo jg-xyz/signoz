@@ -71,7 +71,7 @@ check_os() {
             os="amazon linux"
             package_manager="yum"
             ;;
-        Debian*)
+        Debian*|LMDE)
             desired_os=1
             os="debian"
             package_manager="apt-get"
